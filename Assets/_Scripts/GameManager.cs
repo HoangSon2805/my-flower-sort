@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 // Script này được gắn vào một GameObject rỗng trong Scene
 public class GameManager : MonoBehaviour {
@@ -79,10 +80,21 @@ public class GameManager : MonoBehaviour {
             // Lấy bông hoa trên cùng từ chậu gốc
             GameObject flowerToMove = fromVase.RemoveFlower();
             // Thêm bông hoa đó vào chậu mục tiêu
-            toVase.AddFlower(flowerToMove);
+            // DÙNG DOTWEEN ĐỂ TẠO ANIMATION
+            // 1. Tạo một chuỗi animation
+            Sequence sequence = DOTween.Sequence();
+            // 2. Thêm bước di chuyển hoa lên trên chậu cũ
+            sequence.Append(flowerToMove.transform.DOMove(fromVase.transform.position + Vector3.up * 1.5f, 0.2f));
+            // 3. Thêm bước di chuyển hoa đến phía trên chậu mới
+            sequence.Append(flowerToMove.transform.DOMove(toVase.transform.position + Vector3.up * 1.5f, 0.3f));
+            // 4. Khi animation hoàn thành, gọi hàm để đặt hoa vào chậu mới
+            sequence.OnComplete(() =>
+            {
+                toVase.AddFlower(flowerToMove);
 
-            // TODO: Kiểm tra điều kiện thắng sau khi di chuyển thành công
-            CheckWinCondition();
+                // TODO: Kiểm tra điều kiện thắng sau khi di chuyển thành công
+                CheckWinCondition();
+            });
         }
 
         // Dù di chuyển thành công hay không, luôn bỏ chọn chậu gốc và trả nó về vị trí cũ

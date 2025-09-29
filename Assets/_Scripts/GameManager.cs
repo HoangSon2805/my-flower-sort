@@ -1,10 +1,12 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 // Script này được gắn vào một GameObject rỗng trong Scene
 public class GameManager : MonoBehaviour {
     // Lưu lại chậu hoa đang được người chơi chọn
     private VaseController selectedVase = null;
-
+    public UIManager uiManager;
+    public List<VaseController> allVases;
     // Update được gọi mỗi khung hình
     void Update() {
         // Chỉ xử lý khi người chơi nhấp chuột trái
@@ -80,11 +82,26 @@ public class GameManager : MonoBehaviour {
             toVase.AddFlower(flowerToMove);
 
             // TODO: Kiểm tra điều kiện thắng sau khi di chuyển thành công
-            // CheckWinCondition();
+            CheckWinCondition();
         }
 
         // Dù di chuyển thành công hay không, luôn bỏ chọn chậu gốc và trả nó về vị trí cũ
         fromVase.transform.position -= Vector3.up * 0.5f;
         selectedVase = null;
+    }
+
+    private void CheckWinCondition() {
+        foreach (var vase in allVases)
+        {
+            // Nếu có bất kỳ một chậu nào chưa rỗng và chưa hoàn thành -> game chưa thắng
+            if (!vase.IsEmpty() && !vase.IsCompleted())
+            {
+                return; // Dừng hàm ngay lập tức
+            }
+        }
+
+        // Nếu vòng lặp chạy hết mà không bị return -> tất cả các chậu đã xong -> THẮNG!
+        Debug.Log("YOU WIN!");
+        uiManager.ShowWinScreen();
     }
 }
